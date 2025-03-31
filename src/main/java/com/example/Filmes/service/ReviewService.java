@@ -55,5 +55,32 @@ public class ReviewService {
 
         reviewRepository.delete(review);
     }
+
+    // Busca review por id
+    public Review buscarReviewPorId(Long id) {
+        return reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Review não encontrada"));
+    }
+
+    @Transactional
+    public Review atualizarReview(Long reviewId, Review reviewAtualizada, Long usuarioId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("Review não encontrada"));
+
+        if (!review.getUsuario().getId().equals(usuarioId)) {
+            throw new RuntimeException("Ação não permitida");
+        }
+
+        reviewAtualizada.setId(reviewId);
+        reviewAtualizada.setUsuario(review.getUsuario()); // Mantém o usuário original
+        reviewAtualizada.setFilme(review.getFilme()); // Mantém o filme original
+
+        return reviewRepository.save(reviewAtualizada);
+    }
+
+    //Lista reviews
+    public List<Review> listarTodasReviews() {
+        return reviewRepository.findAll();
+    }
 }
 

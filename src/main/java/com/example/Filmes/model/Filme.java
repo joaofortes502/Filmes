@@ -16,4 +16,5 @@ public class Filme {
 
     @Column(name = "poster_url")
     private String posterUrl;
+
 }

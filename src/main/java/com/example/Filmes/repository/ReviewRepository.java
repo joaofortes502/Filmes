@@ -20,4 +20,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // Verifica se um usuário já avaliou um filme
     boolean existsByUsuarioIdAndFilmeId(Long usuarioId, Long filmeId);
+
+    void deleteByFilmeId(Long id);
 }
