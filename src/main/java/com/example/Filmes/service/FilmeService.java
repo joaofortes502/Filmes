@@ -3,90 +3,68 @@ package com.example.Filmes.service;
 import com.example.Filmes.model.Filme;
 import com.example.Filmes.repository.FilmeRepository;
 import com.example.Filmes.repository.ReviewRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class FilmeService {
 
-    @Autowired
-    private FilmeRepository filmeRepository;
+    private final FilmeRepository filmeRepository;
+    private final ReviewRepository reviewRepository;
 
-    @Autowired
-    private ReviewRepository reviewRepository;
-
-    // Cadastra um novo filme
     @Transactional
     public Filme cadastrarFilme(Filme filme) {
         return filmeRepository.save(filme);
     }
 
-    // Lista todos os filmes
+    @Transactional(readOnly = true)
     public List<Filme> listarTodosFilmes() {
         return filmeRepository.findAll();
     }
 
-    // Lista filmes paginado
+    @Transactional(readOnly = true)
     public Page<Filme> listarFilmesPaginados(Pageable pageable) {
         return filmeRepository.findAll(pageable);
     }
 
-    // Busca filme por ID
+    @Transactional(readOnly = true)
     public Filme buscarFilmePorId(Long id) {
-        Optional<Filme> filmeOptional = filmeRepository.findById(id);
-        return filmeOptional.orElse(null);
+        return filmeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Filme não encontrado com ID: " + id));
     }
 
-    // Atualiza um filme existente
     @Transactional
     public Filme atualizarFilme(Long id, Filme filmeAtualizado) {
-        Optional<Filme> filmeOptional = filmeRepository.findById(id);
+        Filme filmeExistente = filmeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Filme não encontrado com ID: " + id));
 
-        if (filmeOptional.isPresent()) {
-            Filme filmeExistente = filmeOptional.get();
+        filmeExistente.setTitulo(filmeAtualizado.getTitulo());
+        filmeExistente.setDescricao(filmeAtualizado.getDescricao());
+        filmeExistente.setDataLancamento(filmeAtualizado.getDataLancamento());
+        filmeExistente.setPosterPath(filmeAtualizado.getPosterPath());
+        filmeExistente.setGenerosIds(filmeAtualizado.getGenerosIds());
 
-            // Atualiza apenas os campos permitidos
-            filmeExistente.setTitulo(filmeAtualizado.getTitulo());
-            filmeExistente.setGenero(filmeAtualizado.getGenero());
-            filmeExistente.setAno(filmeAtualizado.getAno());
-
-            return filmeRepository.save(filmeExistente);
-        }
-        return null;
+        // Atualize outros campos conforme necessário
+        return filmeRepository.save(filmeExistente);
     }
 
-    // Deleta um filme
     @Transactional
     public boolean deletarFilme(Long id) {
-        Optional<Filme> filmeOptional = filmeRepository.findById(id);
-
-        if (filmeOptional.isPresent()) {
-            // Antes de deletar o filme, deleta as reviews associadas
-            reviewRepository.deleteById(id);
-            filmeRepository.deleteById(id);
+        return filmeRepository.findById(id).map(filme -> {
+            reviewRepository.deleteByFilmeId(id);
+            filmeRepository.delete(filme);
             return true;
-        }
-        return false;
-    }
-
-    // Busca filmes por gênero
-    public List<Filme> buscarFilmesPorGenero(String genero) {
-        return filmeRepository.findByGenero(genero);
-    }
-
-    // Busca filmes por ano de lançamento
-    public List<Filme> buscarFilmesPorAno(int ano) {
-        return filmeRepository.findByAno(ano);
+        }).orElse(false);
     }
 
 
-    // Busca filmes por título
+    @Transactional(readOnly = true)
     public List<Filme> buscarFilmesPorTitulo(String titulo) {
         return filmeRepository.findByTituloContainingIgnoreCase(titulo);
     }

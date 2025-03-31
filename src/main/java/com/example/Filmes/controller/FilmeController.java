@@ -85,25 +85,5 @@ public class FilmeController {
         }
     }
 
-    // Busca filmes por gênero
-    @GetMapping("/genero/{genero}")
-    public ResponseEntity<List<Filme>> buscarFilmesPorGenero(@PathVariable String genero) {
-        List<Filme> filmes = filmeService.buscarFilmesPorGenero(genero);
-        if (!filmes.isEmpty()) {
-            return new ResponseEntity<>(filmes, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
 
-    // Busca filmes por ano de lançamento
-    @GetMapping("/ano/{ano}")
-    public ResponseEntity<List<Filme>> buscarFilmesPorAno(@PathVariable int ano) {
-        List<Filme> filmes = filmeService.buscarFilmesPorAno(ano);
-        if (!filmes.isEmpty()) {
-            return new ResponseEntity<>(filmes, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
 }
