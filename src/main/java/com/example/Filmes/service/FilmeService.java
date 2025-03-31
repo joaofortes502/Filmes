@@ -4,6 +4,8 @@ import com.example.Filmes.model.Filme;
 import com.example.Filmes.repository.FilmeRepository;
 import com.example.Filmes.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,11 @@ public class FilmeService {
     // Lista todos os filmes
     public List<Filme> listarTodosFilmes() {
         return filmeRepository.findAll();
+    }
+
+    // Lista filmes paginado
+    public Page<Filme> listarFilmesPaginados(Pageable pageable) {
+        return filmeRepository.findAll(pageable);
     }
 
     // Busca filme por ID

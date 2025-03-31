@@ -3,6 +3,8 @@ package com.example.Filmes.controller;
 import com.example.Filmes.model.Filme;
 import com.example.Filmes.service.FilmeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +18,19 @@ public class FilmeController {
     @Autowired
     private FilmeService filmeService;
 
-    // Lista todos os filmes
+    // Endpoint paginado (GET /api/filmes?page=0&size=10)
     @GetMapping
-    public ResponseEntity<List<Filme>> listarTodosFilmes() {
-        List<Filme> filmes = filmeService.listarTodosFilmes();
-        return new ResponseEntity<>(filmes, HttpStatus.OK);
+    public Page<Filme> listarFilmesPaginados(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return filmeService.listarFilmesPaginados(PageRequest.of(page, size));
+    }
+
+    // não-paginado
+    @GetMapping("/todos")
+    public List<Filme> listarTodosFilmes() {
+        return filmeService.listarTodosFilmes();
     }
 
     // Busca filme por ID
